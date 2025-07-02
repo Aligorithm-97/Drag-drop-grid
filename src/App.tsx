@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { Task, Column as ColumnType } from './types';
-import { Column } from './Column';
+import { Column } from './components/Column';
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import DragFromOutsideLayout from './DragFromOutsideLayout';
-import Sidebar from './Sidebar';
+import Sidebar from './components/Sidebar';
 
 const COLUMNS: ColumnType[] = [
   { id: 'TODO', title: 'To Do' },

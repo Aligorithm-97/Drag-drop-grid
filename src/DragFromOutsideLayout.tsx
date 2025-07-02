@@ -3,12 +3,13 @@ import React from 'react';
 import _ from 'lodash';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import { PieChart } from 'react-minimal-pie-chart';
-import PieChart3d from './PieChart3d';
+import PieChart3d from './components/PieChart3d';
+import { GeoChart } from './components/GeoChart';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const ChartBox = () => (
-  <div className="flex h-full w-full items-center justify-center rounded text-white shadow">
+  <div className="flex h-full w-full items-center justify-center rounded bg-red-400 text-white shadow">
     <PieChart
       data={[
         { title: 'One', value: 10, color: '#E38627' },
@@ -21,7 +22,7 @@ const ChartBox = () => (
 
 const TextBox = () => (
   <div className="flex h-full w-full items-center justify-center rounded  text-white shadow">
-    Text Box
+    <GeoChart />
   </div>
 );
 
@@ -134,6 +135,17 @@ export default class DragFromOutsideLayout extends React.Component {
   onNewLayout = () => {
     this.setState({ layouts: { lg: generateLayout() } });
   };
+  onResize(layout, oldLayoutItem, layoutItem, placeholder) {
+    if (layoutItem.h < 3 && layoutItem.w > 2) {
+      layoutItem.w = 2;
+      placeholder.w = 2;
+    }
+
+    if (layoutItem.h >= 3 && layoutItem.w < 2) {
+      layoutItem.w = 2;
+      placeholder.w = 2;
+    }
+  }
 
   onDrop = (layout, layoutItem, event) => {
     try {
@@ -187,7 +199,7 @@ export default class DragFromOutsideLayout extends React.Component {
   render() {
     return (
       <div className="flex overflow-hidden">
-        <div className="relative h-screen flex-1 overflow-auto border">
+        <div className="relative h-[80vh] flex-1 overflow-auto border">
           <ResponsiveReactGridLayout
             {...this.props}
             layouts={this.state.layouts}
@@ -199,6 +211,8 @@ export default class DragFromOutsideLayout extends React.Component {
             compactType={this.state.compactType}
             preventCollision={!this.state.compactType}
             isDroppable={true}
+            isResizable={true}
+            onResize={this.onResize}
             rowHeight={100}
           >
             {this.generateDOM()}
@@ -223,6 +237,7 @@ function generateLayout() {
       i: i.toString(),
       type: types[i % types.length],
       static: false,
+      isResizable: true,
     };
   });
 }

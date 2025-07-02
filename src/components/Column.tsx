@@ -1,6 +1,6 @@
 import { useDroppable } from '@dnd-kit/core';
 import { TaskCard } from './TaskCard';
-import { Column as ColumnType, Task } from './types';
+import { Column as ColumnType, Task } from '../types';
 
 type ColumnProps = {
   column: ColumnType;
