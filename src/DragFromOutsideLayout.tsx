@@ -1,0 +1,150 @@
+// @ts-nocheck
+import React from 'react';
+import _ from 'lodash';
+import { Responsive, WidthProvider } from 'react-grid-layout';
+import { PieChart } from 'react-minimal-pie-chart';
+const ResponsiveReactGridLayout = WidthProvider(Responsive);
+
+const ChartBox = () => (
+  <div className="flex h-full w-full items-center justify-center rounded bg-purple-500 p-4 text-white shadow">
+    <PieChart
+      data={[
+        { title: 'One', value: 10, color: '#E38627' },
+        { title: 'Two', value: 15, color: '#C13C37' },
+        { title: 'Three', value: 20, color: '#6A2135' },
+      ]}
+    />
+  </div>
+);
+
+const TextBox = () => (
+  <div className="flex h-full w-full items-center justify-center rounded bg-green-500 p-4 text-white shadow">
+    Text Box
+  </div>
+);
+
+const ImageBox = () => (
+  <div className="flex h-full w-full items-center justify-center rounded bg-blue-500 p-4 text-white shadow">
+    Image Box
+  </div>
+);
+
+const COMPONENT_MAP = {
+  chart: ChartBox,
+  text: TextBox,
+  image: ImageBox,
+};
+
+export default class DragFromOutsideLayout extends React.Component {
+  static defaultProps = {
+    className: 'layout',
+    rowHeight: 30,
+    onLayoutChange: function () {},
+    cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
+  };
+
+  state = {
+    currentBreakpoint: 'lg',
+    compactType: 'vertical',
+    mounted: false,
+    layouts: { lg: generateLayout() },
+  };
+
+  componentDidMount() {
+    this.setState({ mounted: true });
+  }
+
+  generateDOM() {
+    return _.map(this.state.layouts.lg, (l, i) => {
+      const Component = COMPONENT_MAP[l.type] || (() => <div>Unknown</div>);
+      return (
+        <div key={l.i} className={l.static ? 'static' : ''}>
+          <Component />
+        </div>
+      );
+    });
+  }
+
+  onBreakpointChange = (breakpoint) => {
+    this.setState({ currentBreakpoint: breakpoint });
+  };
+
+  onCompactTypeChange = () => {
+    const compactType =
+      this.state.compactType === 'horizontal'
+        ? 'vertical'
+        : this.state.compactType === 'vertical'
+          ? null
+          : 'horizontal';
+    this.setState({ compactType });
+  };
+
+  onLayoutChange = (layout, layouts) => {
+    this.props.onLayoutChange(layout, layouts);
+  };
+
+  onNewLayout = () => {
+    this.setState({ layouts: { lg: generateLayout() } });
+  };
+
+  onDrop = (layout, layoutItem, event) => {
+    try {
+      const data = JSON.parse(event.dataTransfer.getData('application/json'));
+      const newItem = {
+        ...layoutItem,
+        i: data.i,
+        w: data.w,
+        h: data.h,
+        type: data.type,
+      };
+      this.setState((prev) => ({
+        layouts: {
+          ...prev.layouts,
+          lg: [...prev.layouts.lg, newItem],
+        },
+      }));
+    } catch (e) {
+      console.warn('Invalid drop data', e);
+    }
+  };
+
+  render() {
+    return (
+      <div className="flex min-h-96 overflow-hidden">
+        <div className="flex-1 overflow-auto border">
+          <ResponsiveReactGridLayout
+            {...this.props}
+            layouts={this.state.layouts}
+            onBreakpointChange={this.onBreakpointChange}
+            onLayoutChange={this.onLayoutChange}
+            onDrop={this.onDrop}
+            measureBeforeMount={false}
+            useCSSTransforms={this.state.mounted}
+            compactType={this.state.compactType}
+            preventCollision={!this.state.compactType}
+            isDroppable={true}
+            rowHeight={30}
+          >
+            {this.generateDOM()}
+          </ResponsiveReactGridLayout>
+        </div>
+      </div>
+    );
+  }
+}
+
+function generateLayout() {
+  const types = ['chart', 'text', 'image'];
+  return _.map(_.range(0, 3), function (item, i) {
+    const y = Math.ceil(Math.random() * 2) + 1;
+    return {
+      x: (i % 6) * 2,
+      y: Math.floor(i / 6) * y,
+      w: 2,
+      h: y,
+      i: i.toString(),
+      type: types[i % types.length],
+      static: false,
+    };
+  });
+}
