@@ -4,10 +4,11 @@ import _ from 'lodash';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import { PieChart } from 'react-minimal-pie-chart';
 import PieChart3d from './PieChart3d';
+
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const ChartBox = () => (
-  <div className="flex h-full w-full items-center justify-center rounded bg-purple-500 p-4 text-white shadow">
+  <div className="flex h-full w-full items-center justify-center rounded text-white shadow">
     <PieChart
       data={[
         { title: 'One', value: 10, color: '#E38627' },
@@ -19,13 +20,13 @@ const ChartBox = () => (
 );
 
 const TextBox = () => (
-  <div className="flex h-full w-full items-center justify-center rounded bg-green-500 p-4 text-white shadow">
+  <div className="flex h-full w-full items-center justify-center rounded  text-white shadow">
     Text Box
   </div>
 );
 
 const ImageBox = () => (
-  <div className="flex h-full w-full items-center justify-center rounded bg-blue-500 p-4 text-white shadow">
+  <div className="flex h-full w-full items-center justify-center rounded  text-white shadow">
     <PieChart3d />
   </div>
 );
@@ -49,17 +50,63 @@ export default class DragFromOutsideLayout extends React.Component {
     compactType: 'vertical',
     mounted: false,
     layouts: { lg: generateLayout() },
+    contextMenu: {
+      visible: false,
+      x: 0,
+      y: 0,
+      targetId: null,
+    },
   };
 
   componentDidMount() {
     this.setState({ mounted: true });
+
+    document.addEventListener('click', this.handleClickOutside);
   }
 
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
+  }
+
+  handleClickOutside = () => {
+    if (this.state.contextMenu.visible) {
+      this.setState({
+        contextMenu: { visible: false, x: 0, y: 0, targetId: null },
+      });
+    }
+  };
+
+  removeItem = (id) => {
+    this.setState((prev) => ({
+      layouts: {
+        ...prev.layouts,
+        lg: prev.layouts.lg.filter((item) => item.i !== id),
+      },
+      contextMenu: { visible: false, x: 0, y: 0, targetId: null },
+    }));
+  };
+
+  handleContextMenu = (event, id) => {
+    event.preventDefault();
+    this.setState({
+      contextMenu: {
+        visible: true,
+        x: event.clientX,
+        y: event.clientY,
+        targetId: id,
+      },
+    });
+  };
+
   generateDOM() {
-    return _.map(this.state.layouts.lg, (l, i) => {
+    return _.map(this.state.layouts.lg, (l) => {
       const Component = COMPONENT_MAP[l.type] || (() => <div>Unknown</div>);
       return (
-        <div key={l.i} className={l.static ? 'static' : ''}>
+        <div
+          key={l.i}
+          onContextMenu={(e) => this.handleContextMenu(e, l.i)}
+          className={l.static ? 'static' : ''}
+        >
           <Component />
         </div>
       );
@@ -109,10 +156,38 @@ export default class DragFromOutsideLayout extends React.Component {
     }
   };
 
+  renderContextMenu() {
+    const { visible, x, y, targetId } = this.state.contextMenu;
+    if (!visible) return null;
+
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          top: y,
+          left: x,
+          backgroundColor: 'white',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          zIndex: 9999,
+          padding: '4px 0',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+        }}
+      >
+        <div
+          onClick={() => this.removeItem(targetId)}
+          className="cursor-pointer px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+        >
+          Sil
+        </div>
+      </div>
+    );
+  }
+
   render() {
     return (
       <div className="flex overflow-hidden">
-        <div className="h-screen flex-1 overflow-auto border">
+        <div className="relative h-screen flex-1 overflow-auto border">
           <ResponsiveReactGridLayout
             {...this.props}
             layouts={this.state.layouts}
@@ -128,6 +203,8 @@ export default class DragFromOutsideLayout extends React.Component {
           >
             {this.generateDOM()}
           </ResponsiveReactGridLayout>
+
+          {this.renderContextMenu()}
         </div>
       </div>
     );
