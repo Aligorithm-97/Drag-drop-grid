@@ -3,6 +3,7 @@ import React from 'react';
 import _ from 'lodash';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import { PieChart } from 'react-minimal-pie-chart';
+import PieChart3d from './PieChart3d';
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const ChartBox = () => (
@@ -25,7 +26,7 @@ const TextBox = () => (
 
 const ImageBox = () => (
   <div className="flex h-full w-full items-center justify-center rounded bg-blue-500 p-4 text-white shadow">
-    Image Box
+    <PieChart3d />
   </div>
 );
 
@@ -110,8 +111,8 @@ export default class DragFromOutsideLayout extends React.Component {
 
   render() {
     return (
-      <div className="flex min-h-96 overflow-hidden">
-        <div className="flex-1 overflow-auto border">
+      <div className="flex overflow-hidden">
+        <div className="h-screen flex-1 overflow-auto border">
           <ResponsiveReactGridLayout
             {...this.props}
             layouts={this.state.layouts}
@@ -123,7 +124,7 @@ export default class DragFromOutsideLayout extends React.Component {
             compactType={this.state.compactType}
             preventCollision={!this.state.compactType}
             isDroppable={true}
-            rowHeight={30}
+            rowHeight={100}
           >
             {this.generateDOM()}
           </ResponsiveReactGridLayout>
