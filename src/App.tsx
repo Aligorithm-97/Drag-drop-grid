@@ -4,6 +4,7 @@ import { Column } from './components/Column';
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import DragFromOutsideLayout from './DragFromOutsideLayout';
 import Sidebar from './components/Sidebar';
+import DynamicMinMaxLayout from './Resize';
 
 const COLUMNS: ColumnType[] = [
   { id: 'TODO', title: 'To Do' },

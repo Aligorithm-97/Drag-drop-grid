@@ -5,7 +5,8 @@ import { Responsive, WidthProvider } from 'react-grid-layout';
 import { PieChart } from 'react-minimal-pie-chart';
 import PieChart3d from './components/PieChart3d';
 import { GeoChart } from './components/GeoChart';
-
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const ChartBox = () => (
@@ -33,9 +34,9 @@ const ImageBox = () => (
 );
 
 const COMPONENT_MAP = {
-  chart: ChartBox,
-  text: TextBox,
-  image: ImageBox,
+  pie: ChartBox,
+  geo: TextBox,
+  pie3d: ImageBox,
 };
 
 export default class DragFromOutsideLayout extends React.Component {
@@ -135,17 +136,17 @@ export default class DragFromOutsideLayout extends React.Component {
   onNewLayout = () => {
     this.setState({ layouts: { lg: generateLayout() } });
   };
-  onResize(layout, oldLayoutItem, layoutItem, placeholder) {
-    if (layoutItem.h < 3 && layoutItem.w > 2) {
-      layoutItem.w = 2;
-      placeholder.w = 2;
-    }
+  // onResize(layout, oldLayoutItem, layoutItem, placeholder) {
+  //   if (layoutItem.h < 3 && layoutItem.w > 2) {
+  //     layoutItem.w = 2;
+  //     placeholder.w = 2;
+  //   }
 
-    if (layoutItem.h >= 3 && layoutItem.w < 2) {
-      layoutItem.w = 2;
-      placeholder.w = 2;
-    }
-  }
+  //   if (layoutItem.h >= 3 && layoutItem.w < 2) {
+  //     layoutItem.w = 2;
+  //     placeholder.w = 2;
+  //   }
+  // }
 
   onDrop = (layout, layoutItem, event) => {
     try {
@@ -212,8 +213,10 @@ export default class DragFromOutsideLayout extends React.Component {
             preventCollision={!this.state.compactType}
             isDroppable={true}
             isResizable={true}
-            onResize={this.onResize}
+            isDraggable={true}
             rowHeight={100}
+            margin={[10, 10]}
+            containerPadding={[10, 10]}
           >
             {this.generateDOM()}
           </ResponsiveReactGridLayout>
@@ -226,18 +229,15 @@ export default class DragFromOutsideLayout extends React.Component {
 }
 
 function generateLayout() {
-  const types = ['chart', 'text', 'image'];
-  return _.map(_.range(0, 3), function (item, i) {
-    const y = Math.ceil(Math.random() * 2) + 1;
+  const types = ['pie', 'geo', 'pie3d'];
+  return _.map(_.range(0, 3), function (i) {
     return {
-      x: (i % 6) * 2,
-      y: Math.floor(i / 6) * y,
+      x: (i % 3) * 4,
+      y: 0,
       w: 2,
-      h: y,
+      h: 3,
       i: i.toString(),
       type: types[i % types.length],
-      static: false,
-      isResizable: true,
     };
   });
 }

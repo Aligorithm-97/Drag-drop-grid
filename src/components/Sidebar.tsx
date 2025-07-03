@@ -3,8 +3,8 @@ import _ from 'lodash';
 function Sidebar() {
   return (
     <div className="w-64 border-r p-4">
-      <h2 className="mb-4 text-lg font-bold">🧩 Components</h2>
-      {['chart', 'text', 'image'].map((type) => (
+      <h2 className="mb-4 text-lg font-bold">Charts</h2>
+      {['pie', 'geo', 'pie3d'].map((type) => (
         <div
           key={type}
           className="mb-3 cursor-move rounded bg-black   p-3 shadow"
@@ -19,7 +19,7 @@ function Sidebar() {
             e.dataTransfer.setData('application/json', item);
           }}
         >
-          ➕ {_.capitalize(type)} Component
+          ➕ {_.capitalize(type)} Chart
         </div>
       ))}
       {/* <button
