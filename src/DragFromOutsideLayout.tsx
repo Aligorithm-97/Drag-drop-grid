@@ -230,14 +230,14 @@ export default class DragFromOutsideLayout extends React.Component {
 
 function generateLayout() {
   const types = ['pie', 'geo', 'pie3d'];
-  return _.map(_.range(0, 3), function (i) {
+  return _.map(_.range(0, 2), function (i) {
     return {
-      x: (i % 3) * 4,
+      x: (i % 3) * 2,
       y: 0,
       w: 2,
       h: 3,
       i: i.toString(),
-      type: types[i % types.length],
+      type: types[0],
     };
   });
 }
